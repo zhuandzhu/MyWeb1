@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+	http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <!-- <context:component-scan base-package="com.spring.controller" /> -->
+    <!--view -->
+    <!-- 获取配置文件 -->
+    <bean id="config"
+          class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="locations">
+            <list>
+                <value>classpath*:conf/mysql.properties</value>
+            </list>
+        </property>
+    </bean>
+    <!-- 获取数据源 -->
+    <bean id="testDataSource"
+          class="org.springframework.jndi.JndiObjectFactoryBean">
+        <property name="jndiName" value="java:comp/env/jdbc/testDataSource"/>
+    </bean>
+    <bean id="userDataSource"
+          class="org.springframework.jndi.JndiObjectFactoryBean">
+        <property name="jndiName" value="java:comp/env/jdbc/testDataSource"/>
+    </bean>
+    <!--
+    <bean id="testDataSource" class="org.apache.commons.dbcp.BasicDataSource"
+          destroy-method="close">
+        <property name="driverClassName" value="com.mysql.jdbc.Driver" />
+        <property name="url" value="jdbc:mysql://localhost:3306/test?characterEncoding=utf8" />
+        <property name="username" value="test" />
+        <property name="password" value="123456" />
+    </bean>-->
+
+    <!-- 多数据源的切换 -->
+    <bean id="dataSource" class="com.zhu.tools.datasource.DynamicDataSource">
+        <property name="targetDataSources">
+            <map>
+                <entry key="res" value-ref="testDataSource" />
+                <entry key="gis" value-ref="userDataSource" />
+            </map>
+        </property>
+        <property name="defaultTargetDataSource" ref="testDataSource" />
+    </bean>
+
+    <!--
+    <bean id="userDao" class="com.zhu.dao.UserDao">
+        <property name="dataSource" ref="dataSource"></property>
+    </bean>-->
+
+    <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <property name="prefix" value="/view/" />
+        <property name="suffix" value=".html" />
+    </bean>
+</beans>
